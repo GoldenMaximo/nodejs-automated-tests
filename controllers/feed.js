@@ -5,6 +5,7 @@ const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
 const { pseudoRandomBytes } = require('crypto');
+const { clear } = require('console');
 
 exports.getPosts = (req, res, next) => {
     Post.find().then(posts => {
@@ -122,12 +123,36 @@ exports.putEditPost = (req, res, next) => {
             post: result
         })
     }).catch(err => {
-                if (!err.statusCode) {
+        if (!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
     })
 };
+
+exports.deletePost = (req, res, next) => {
+    const { postId } = req.params;
+    Post.findById(postId).then(post => {
+        if (!post) {
+            const error = new Error('Could not find post');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        clearImage(post.imageUrl);
+
+        return Post.findByIdAndRemove(postId);
+    }).then(() => {
+        res.json({
+            message: 'Post deleted successefully'
+        })
+    }).catch(err => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+}
 
 const clearImage = filePath => {
     filePath = path.join(__dirname, '..', filePath);
