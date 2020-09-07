@@ -8,10 +8,17 @@ const { pseudoRandomBytes } = require('crypto');
 const { clear } = require('console');
 
 exports.getPosts = (req, res, next) => {
-    Post.find().then(posts => {
+    const { page } = req.query || 1;
+    const perPage = 2;
+    let totalItems = 0;
+    Post.find().countDocuments().then(total => {
+        totalItems = total;
+        return Post.find().skip((page - 1) * perPage).limit(perPage);
+    }).then(posts => {
         res.status(200).json({
             message: 'Posts fetched successefully',
-            posts
+            posts,
+            totalItems
         })
     }).catch(err => {
         if (!err.statusCode) {
