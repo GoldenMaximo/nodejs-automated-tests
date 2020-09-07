@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const feedRoutes = require('./routes/feed');
 const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+
+const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const MONGODB_URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqkk.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
@@ -42,12 +44,13 @@ app.use((req, res, next) => {
 })
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
     const statusCode = error.statusCode || 500;
-    const message = error.message;
-    return res.status(statusCode).json({ message });
+    const { message, data } = error;
+    return res.status(statusCode).json({ message, data });
 })
 
 mongoose.connect(MONGODB_URI).then(result => {
