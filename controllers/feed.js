@@ -25,7 +25,7 @@ exports.getPosts = (req, res, next) => {
             err.statusCode = 500;
         }
         next(err);
-    })
+    });
 };
 
 exports.createPost = (req, res, next) => {
