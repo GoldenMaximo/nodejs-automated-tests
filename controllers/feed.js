@@ -166,14 +166,17 @@ exports.deletePost = (req, res, next) => {
             error.statusCode = 403;
             throw error;
         }
-
         clearImage(post.imageUrl);
-
         return Post.findByIdAndRemove(postId);
+    }).then(() => {
+        return User.findById(req.userId);
+    }).then(user => {
+        user.posts.pull(postId);
+        return user.save();
     }).then(() => {
         res.json({
             message: 'Post deleted successefully'
-        })
+        });
     }).catch(err => {
         if (!err.statusCode) {
             err.statusCode = 500;
