@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+const statusRoutes = require('./routes/status');
 
 const MONGODB_URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqkk.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
@@ -45,13 +46,14 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
+app.use(statusRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
     const statusCode = error.statusCode || 500;
     const { message, data } = error;
     return res.status(statusCode).json({ message, data });
-})
+});
 
 mongoose.connect(MONGODB_URI).then(result => {
     app.listen('8080');
