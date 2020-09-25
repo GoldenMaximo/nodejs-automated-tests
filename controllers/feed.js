@@ -42,8 +42,6 @@ exports.createPost = async (req, res, next) => {
     const { title, content } = req.body;
     const imageUrl = req.file.path;
 
-    let creator;
-
     const post = new Post({
         title,
         content,
@@ -55,7 +53,6 @@ exports.createPost = async (req, res, next) => {
         await post.save();
 
         const user = await User.findById(req.userId);
-        creator = user;
         user.posts.push(post);
         await user.save();
 
@@ -63,15 +60,21 @@ exports.createPost = async (req, res, next) => {
         // broadcast sends it to all except the client that called it
         io.getIO().emit('posts', {
             action: 'create',
-            post
+            post: {
+                ...post._doc,
+                creator: {
+                    _id: req.userId,
+                    name: user.name
+                }
+            }
         });
 
         return res.status(201).json({
             message: 'Post created successefully',
             post,
             creator: {
-                _id: creator._id,
-                name: creator.name
+                _id: user._id,
+                name: user.name
             }
         });
     } catch (err) {
