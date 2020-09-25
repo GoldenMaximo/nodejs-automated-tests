@@ -57,13 +57,12 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(MONGODB_URI).then(() => {
     const server = app.listen('8080');
-    const io = require('socket.io')(server);
+    const io = require('./socket').init(server);
 
     // socket = client that just connected to the server
     io.on('connection', socket => {
         // this function will execute for every client that connects
-
         console.log('Client connected');
-    })
+    });
 
 }).catch(err => console.log('ATLAS CONNECTION ERROR: ', err));
