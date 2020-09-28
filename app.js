@@ -42,11 +42,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
-})
-
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
-app.use(statusRoutes);
+});
 
 app.use((error, req, res, next) => {
     console.log(error);
@@ -56,13 +52,5 @@ app.use((error, req, res, next) => {
 });
 
 mongoose.connect(MONGODB_URI).then(() => {
-    const server = app.listen('8080');
-    const io = require('./socket').init(server);
-
-    // socket = client that just connected to the server
-    io.on('connection', socket => {
-        // this function will execute for every client that connects
-        console.log('Client connected');
-    });
-
+    app.listen('8080');
 }).catch(err => console.log('ATLAS CONNECTION ERROR: ', err));
