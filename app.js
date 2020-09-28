@@ -6,9 +6,9 @@ const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
-const statusRoutes = require('./routes/status');
+const { graphqlHTTP } = require('express-graphql');
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolvers = require('./graphql/resolvers');
 
 const MONGODB_URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqkk.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
@@ -43,6 +43,11 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
+
+app.use('/graphql', graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolvers
+}));
 
 app.use((error, req, res, next) => {
     console.log(error);
