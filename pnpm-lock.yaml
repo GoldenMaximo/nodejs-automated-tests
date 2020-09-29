@@ -4,12 +4,12 @@ dependencies:
   dotenv: 8.2.0
   express: 4.17.1
   express-graphql: 0.11.0_graphql@15.3.0
-  express-validator: 6.6.1
   graphql: 15.3.0
   jsonwebtoken: 8.5.1
   mongoose: 5.10.2_mongoose@5.10.2
   multer: 1.4.2
   uuid: 8.3.0
+  validator: 13.1.17
 devDependencies:
   nodemon: 2.0.4
 lockfileVersion: 5.1
@@ -463,15 +463,6 @@ packages:
       graphql: ^14.7.0 || ^15.3.0
     resolution:
       integrity: sha512-IMYmF2aIBKKfo8c+EENBNR8FAy91QHboxfaHe1omCyb49GJXsToUgcjjIF/PfWJdzn0Ofp6JJvcsODQJrqpz2g==
-  /express-validator/6.6.1:
-    dependencies:
-      lodash: 4.17.20
-      validator: 13.1.1
-    dev: false
-    engines:
-      node: '>= 8.0.0'
-    resolution:
-      integrity: sha512-+MrZKJ3eGYXkNF9p9Zf7MS7NkPJFg9MDYATU5c80Cf4F62JdLBIjWxy6481tRC0y1NnC9cgOw8FuN364bWaGhA==
   /express/4.17.1:
     dependencies:
       accepts: 1.3.7
@@ -885,10 +876,6 @@ packages:
     dev: false
     resolution:
       integrity: sha1-DdOXEhPHxW34gJd9UEyI+0cal6w=
-  /lodash/4.17.20:
-    dev: false
-    resolution:
-      integrity: sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
   /lowercase-keys/1.0.1:
     dev: true
     engines:
@@ -1602,12 +1589,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
-  /validator/13.1.1:
+  /validator/13.1.17:
     dev: false
     engines:
       node: '>= 0.10'
     resolution:
-      integrity: sha512-8GfPiwzzRoWTg7OV1zva1KvrSemuMkv07MA9TTl91hfhe+wKrsrgVN4H2QSFd/U/FhiU3iWPYVgvbsOGwhyFWw==
+      integrity: sha512-zL5QBoemJ3jYFb2/j38y7ljhwYGXVLUp8H6W1nVxadnAOvUOytec+L7BHh1oBQ82/TzWXHd+GSaxUWp4lROkLg==
   /vary/1.1.2:
     dev: false
     engines:
@@ -1653,10 +1640,10 @@ specifiers:
   dotenv: ^8.2.0
   express: ^4.17.1
   express-graphql: ^0.11.0
-  express-validator: ^6.6.1
   graphql: ^15.3.0
   jsonwebtoken: ^8.5.1
   mongoose: ^5.10.2
   multer: ^1.4.2
   nodemon: ^2.0.4
   uuid: ^8.3.0
+  validator: ^13.1.17
