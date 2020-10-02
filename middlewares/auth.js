@@ -4,11 +4,9 @@ const jwt = require('jsonwebtoken');
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
 
-    const error = new Error('Unauthorized');
-    error.statusCode = 401;
-
     if (!authHeader) {
-        throw error;
+        req.isAuth = false;
+        return next();
     }
 
     const token = req.get('Authorization').split(' ')[1];
@@ -17,14 +15,17 @@ module.exports = (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-        err.statusCode = 500;
-        throw err;
+        console.log('JWT verification error: ', err);
+        req.isAuth = false;
+        return next();
     }
 
     if (!decodedToken) {
-        throw error;
+        req.isAuth = false;
+        return next();
     }
 
     req.userId = decodedToken.userId;
-    next();
+    req.isAuth = true;
+    return next();
 };

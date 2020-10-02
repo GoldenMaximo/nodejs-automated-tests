@@ -1,11 +1,13 @@
 require('dotenv').config();
-const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const validator = require('validator').default;
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const Post = require('../models/post');
+const validator = require('validator').default;
 
 module.exports = {
     createUser: async function ({ userInput }, req) {
+        // stuff comes in as "args", e.g.:
         // const email = args.userInput.email;
         const errors = [];
         if (!validator.isEmail(userInput.email)) {
@@ -20,7 +22,7 @@ module.exports = {
         if (errors.length > 0) {
             const error = new Error('Invalid input');
             error.data = errors;
-            error.statusCode = 422;
+            error.code = 422;
             throw error;
         }
 
@@ -52,7 +54,7 @@ module.exports = {
 
         if (!user) {
             const error = new Error('User not found');
-            error.statusCode = 404;
+            error.code = 404;
             throw error;
         }
 
@@ -60,7 +62,7 @@ module.exports = {
 
         if (!isEqual) {
             const error = new Error('Password is incorrect');
-            error.statusCode = 401;
+            error.code = 401;
             throw error;
         }
 
@@ -79,5 +81,61 @@ module.exports = {
             token,
             userId: user._id.toString()
         }
+    },
+
+    createPost: async function ({ postInput: { title, content, imageUrl } }, req) {
+        if (!req.isAuth) {
+            const error = new Error('User is not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const errors = [];
+
+        if (validator.isEmpty(title) ||
+            !validator.isLength(title, { min: 2 })) {
+            errors.push({ message: 'Title needs to be at least 2 characters long.' });
+        };
+
+        if (validator.isEmpty(content) ||
+            !validator.isLength(content, { min: 2 })) {
+            errors.push({ message: 'Title needs to be at least 2 characters long.' });
+        };
+
+        if (errors.length > 0) {
+            const error = new Error('Invalid input');
+            error.data = errors;
+            error.code = 422;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            const error = new Error('Invalid user');
+            error.code = 422;
+            throw error;
+        }
+
+        const post = new Post({
+            title,
+            content,
+            imageUrl,
+            creator: user
+        });
+
+
+        const createdPost = await post.save();
+
+        user.posts.push(createdPost);
+        await user.save();
+
+        return {
+            ...createdPost._doc,
+            _id: createdPost._id.toString(),
+            createdAt: createdPost.createdAt.toISOString(),
+            updatedAt: createdPost.updatedAt.toISOString(),
+            creator: user
+        };
     }
 };

@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const auth = require('./middlewares/auth');
 
 const { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
@@ -47,18 +48,20 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(auth);
+
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolvers,
     graphiql: true,
     formatError(err) {
-       if (!err.originalError) {
-           return err;
-       }
-       const { data } = err.originalError;
-       const message = err.message || 'An error occured.';
-       const code = err.originalError.code || 500;
-       return { message, status: code, data };
+        if (!err.originalError) {
+            return err;
+        }
+        const { data } = err.originalError;
+        const message = err.message || 'An error occured.';
+        const code = err.originalError.code || 500;
+        return { message, status: code, data };
     }
 }));
 
