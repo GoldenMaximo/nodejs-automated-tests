@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/post');
+const e = require('express');
 const validator = require('validator').default;
 
 module.exports = {
@@ -137,5 +138,31 @@ module.exports = {
             updatedAt: createdPost.updatedAt.toISOString(),
             creator: user
         };
+    },
+
+    posts: async function (args, req) {
+        if (!req.isAuth) {
+            const error = new Error('User is not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const totalPosts = await Post.find().countDocuments();
+
+        const posts = await Post.find().sort({
+            createdAt: -1
+        }).populate('creator');
+
+        return {
+            posts: posts.map(e => {
+                return {
+                    ...e._doc,
+                    id: e._id.toString(),
+                    createdAt: e.createdAt.toISOString(),
+                    updatedAt: e.updatedAt.toISOString()
+                }
+            }),
+            totalPosts
+        }
     }
 };
