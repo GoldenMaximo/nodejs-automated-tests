@@ -3,8 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/post');
-const e = require('express');
 const validator = require('validator').default;
+const { clearImage } = require('../helpers/helper-funcs');
 
 module.exports = {
     createUser: async function ({ userInput }, req) {
@@ -219,8 +219,8 @@ module.exports = {
             throw error;
         }
 
-        if (post.creator._id.toString() !== req.userId) {
-            const error = new Error('User is not authorized to perform this action');
+        if (post.creator._id.toString() !== req.userId.toString()) {
+            const error = new Error('Unauthorized');
             error.code = 401;
             throw error;
         }
@@ -258,5 +258,30 @@ module.exports = {
             updatedAt: updatedPost.updatedAt.toISOString(),
             createdAt: updatedPost.createdAt.toISOString()
         }
+    },
+
+    deletePost: async function ({ id }, req) {
+        if (!req.isAuth) {
+            const error = new Error('User is not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const post = await Post.findById(id);
+
+        if (req.userId.toString() !== post.creator.toString()) {
+            const error = new Error('Unauthorized');
+            error.code = 401;
+            throw error;
+        }
+
+        clearImage(post.imageUrl);
+        await Post.findByIdAndRemove(id);
+
+        const user = await User.findById(req.userId);
+        user.posts.pull(id);
+        await user.save();
+
+        return true;
     }
 };
