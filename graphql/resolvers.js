@@ -202,5 +202,61 @@ module.exports = {
             createdAt: post.createdAt.toISOString(),
             updatedAt: post.updatedAt.toISOString(),
         };
+    },
+
+    updatePost: async function ({ id, postInput: { title, content, imageUrl } }, req) {
+        if (!req.isAuth) {
+            const error = new Error('User is not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const post = await Post.findById(id).populate('creator');
+
+        if (!post) {
+            const error = new Error('No Post with that ID was found.');
+            error.code = 404;
+            throw error;
+        }
+
+        if (post.creator._id.toString() !== req.userId) {
+            const error = new Error('User is not authorized to perform this action');
+            error.code = 401;
+            throw error;
+        }
+
+        const errors = [];
+
+        if (validator.isEmpty(title) ||
+            !validator.isLength(title, { min: 2 })) {
+            errors.push({ message: 'Title needs to be at least 2 characters long.' });
+        };
+
+        if (validator.isEmpty(content) ||
+            !validator.isLength(content, { min: 2 })) {
+            errors.push({ message: 'Title needs to be at least 2 characters long.' });
+        };
+
+        if (errors.length > 0) {
+            const error = new Error('Invalid input');
+            error.data = errors;
+            error.code = 422;
+            throw error;
+        }
+
+        post.title = title;
+        post.content = content;
+        if (imageUrl !== 'undefined') {
+            post.imageUrl = imageUrl;
+        }
+
+        const updatedPost = await post.save();
+
+        return {
+            ...updatedPost._doc,
+            _id: updatedPost._id.toString(),
+            updatedAt: updatedPost.updatedAt.toISOString(),
+            createdAt: updatedPost.createdAt.toISOString()
+        }
     }
 };
