@@ -67,7 +67,7 @@ app.put('/post-image', (req, res, next) => {
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolvers,
-    graphiql: true,
+    graphiql: false, //disabled for production
     formatError(err) {
         console.log('ERROR: ', err);
         if (!err.originalError) {
@@ -88,5 +88,5 @@ app.use((error, req, res, next) => {
 });
 
 mongoose.connect(MONGODB_URI).then(() => {
-    app.listen('8080');
+    app.listen(process.env.PORT || 3000);
 }).catch(err => console.log('ATLAS CONNECTION ERROR: ', err));
