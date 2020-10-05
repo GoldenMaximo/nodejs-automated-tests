@@ -7,6 +7,11 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const auth = require('./middlewares/auth');
 const { clearImage } = require('./helpers/helper-funcs');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const fs = require('fs');
+
 
 const { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
@@ -33,7 +38,7 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-app.use(bodyParser.json());
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -45,12 +50,12 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(
-    multer({ storage: fileStorage, fileFilter }).single('image')
-);
-
+app.use(bodyParser.json());
+app.use(morgan('combined', { stream: accessLogStream }));
+app.use(helmet());
+app.use(compression());
+app.use(multer({ storage: fileStorage, fileFilter }).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
-
 app.use(auth);
 
 app.put('/post-image', (req, res, next) => {
